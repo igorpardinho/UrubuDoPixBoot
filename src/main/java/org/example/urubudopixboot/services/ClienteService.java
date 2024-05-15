@@ -106,18 +106,14 @@ public class ClienteService {
         Long id = sc.nextLong();
 
         Optional<Cliente> optionalCliente = clienteRepository.findById(id);
-        Cliente cliente = optionalCliente.get();
 
-
-        if (optionalCliente.isPresent() && cliente.getSaldo() >= valor) {
+        if (optionalCliente.isPresent() && optionalCliente.get().getSaldo() >= valor) {
+            Cliente cliente = optionalCliente.get();
             cliente.setSaldo(valor - cliente.getSaldo());
             System.out.println("Valor sacado com sucesso!");
-        } else if (cliente.getSaldo() < valor) {
-            System.out.println("Valor insuficiente!");
         } else {
-            System.out.println("Id não encontrado!");
+            System.out.println("Valor insuficiente ou cliente nao encontrado!");
         }
-
 
     }
 
