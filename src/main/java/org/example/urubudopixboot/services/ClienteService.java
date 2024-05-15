@@ -43,6 +43,7 @@ public class ClienteService {
                     break;
                 case 4:
                     depositarValorNaConta();
+                    break;
                 case 5:
                     sacarValorNaConta();
                     break;
@@ -90,7 +91,8 @@ public class ClienteService {
         Optional<Cliente> optionalCliente = clienteRepository.findById(id);
         if (optionalCliente.isPresent()) {
             Cliente cliente = optionalCliente.get();
-            cliente.setSaldo(valor);
+            cliente.setSaldo(valor+cliente.getSaldo());
+            clienteRepository.save(cliente);
         } else {
             System.out.println("cliente nao encontrado!");
         }
@@ -110,6 +112,7 @@ public class ClienteService {
         if (optionalCliente.isPresent() && optionalCliente.get().getSaldo() >= valor) {
             Cliente cliente = optionalCliente.get();
             cliente.setSaldo(valor - cliente.getSaldo());
+            clienteRepository.save(cliente);
             System.out.println("Valor sacado com sucesso!");
         } else {
             System.out.println("Valor insuficiente ou cliente nao encontrado!");
