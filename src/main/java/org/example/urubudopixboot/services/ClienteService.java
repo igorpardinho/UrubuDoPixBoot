@@ -1,6 +1,9 @@
 package org.example.urubudopixboot.services;
 
+import jakarta.transaction.Transactional;
+import org.example.urubudopixboot.orm.Banco;
 import org.example.urubudopixboot.orm.Cliente;
+import org.example.urubudopixboot.repository.BancoRepository;
 import org.example.urubudopixboot.repository.ClienteRepository;
 import org.springframework.boot.ssl.DefaultSslBundleRegistry;
 import org.springframework.stereotype.Service;
@@ -8,15 +11,19 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Scanner;
 
+@Transactional
 @Service
 public class ClienteService {
 
     private final DefaultSslBundleRegistry sslBundleRegistry;
     private ClienteRepository clienteRepository;
+    private BancoRepository bancoRepository;
 
-    public ClienteService(ClienteRepository clienteRepository, DefaultSslBundleRegistry sslBundleRegistry) {
+    public ClienteService(ClienteRepository clienteRepository, DefaultSslBundleRegistry sslBundleRegistry,
+                          BancoRepository bancoRepository) {
         this.clienteRepository = clienteRepository;
         this.sslBundleRegistry = sslBundleRegistry;
+        this.bancoRepository = bancoRepository;
     }
 
     public void menu() {
@@ -70,7 +77,18 @@ public class ClienteService {
         Scanner sc = new Scanner(System.in);
         System.out.println("Digite o nome do Cliente");
         String nome = sc.nextLine();
-        clienteRepository.save(new Cliente(nome));
+        Iterable<Banco> bancos = bancoRepository.findAll();
+        if (!bancos.iterator().hasNext()) {
+            cadastrarBanco();
+        }
+        System.out.println("Digite o id do Banco para vincular:");
+        Long idBanco = sc.nextLong();
+        Optional<Banco> optionalBanco = bancoRepository.findById(idBanco);
+        if (optionalBanco.isPresent()) {
+            Banco banco = optionalBanco.get();
+            clienteRepository.save(new Cliente(nome, banco));
+        }
+
         System.out.println("Cliente cadastrado com sucesso!");
     }
 
@@ -91,7 +109,7 @@ public class ClienteService {
         Optional<Cliente> optionalCliente = clienteRepository.findById(id);
         if (optionalCliente.isPresent()) {
             Cliente cliente = optionalCliente.get();
-            cliente.setSaldo(valor+cliente.getSaldo());
+            cliente.setSaldo(valor + cliente.getSaldo());
             clienteRepository.save(cliente);
         } else {
             System.out.println("cliente nao encontrado!");
@@ -117,6 +135,18 @@ public class ClienteService {
         } else {
             System.out.println("Valor insuficiente ou cliente nao encontrado!");
         }
+
+    }
+
+    public void cadastrarBanco() {
+        Banco banco = new Banco();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Digite o nome do banco: ");
+        String nome = sc.nextLine();
+        banco.setName(nome);
+        bancoRepository.save(banco);
+        System.out.println("Banco cadastrado com sucesso! ID = "+banco.getId());
+
 
     }
 

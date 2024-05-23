@@ -12,10 +12,14 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class Cliente {
 
-    public Cliente(String nome) {
+    public Cliente(String nome, Banco banco) {
         this.nome = nome;
+        this.banco = banco;
 
     }
+
+    @ManyToOne
+    private Banco banco;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +41,7 @@ public class Cliente {
                 "id='" + idCliente + '\'' +
                 ", nome='" + nome + '\'' +
                 ", saldo=" + saldo +
+                ", "+banco +
                 '}';
     }
 }
